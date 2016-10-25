@@ -1,0 +1,9 @@
+# Namnet på certifikatsfilerna kan antingen innehålla absoluta sökvägar
+# som "/path/to/certificate.jks" alternativt en relativ sökväg i för-
+# hållande till system propertin 'user.home'. Inledande / avgör hur
+# clienten ska hantera filen.
+
+lastFeed=https://api.mit.ladok.se/uppfoljning/feed/recent
+useCert=true
+clientCertificateFile=<filename>
+clientCertificatePwd=<password>

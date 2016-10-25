@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<blueprint default-activation="eager"
+    xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <cm:property-placeholder persistent-id="se.sunet.ati.integration.ladok">
+		<cm:default-properties>
+			<cm:property name="atom-client.lastFeed" value="https://api.mit.ladok.se/uppfoljning/feed/recent" />
+			<cm:property name="atom-client.useCert" value="true" />
+			<cm:property name="atom-client.clientCertificateFile" value="/path/to/LADOK_ATOM_CLIENT_CERT.p12" />
+			<cm:property name="atom-client.clientCertificatePwd" value="LADOK_ATOM_CLIENT_CERT_PW" />
+		</cm:default-properties>
+	</cm:property-placeholder>
+
+    <bean id="atomClient" class="se.sunet.ati.ladok.atom.AtomClient">
+        <property name="lastFeed" value="${atom-client.lastFeed}" />
+        <property name="useCert" value="${atom-client.useCert}" />
+        <property name="clientCertificateFile" value="${atom-client.clientCertificateFile}" />
+        <property name="clientCertificatePwd" value="${atom-client.clientCertificatePwd}" />
+    </bean>
+
+    <service ref="atomClient" auto-export="all-classes">
+        <service-properties>
+            <entry key="osgi.jndi.service.name" value="ladok/atom" />
+        </service-properties>
+    </service>
+
+</blueprint>
