@@ -9,6 +9,10 @@ import org.junit.Test;
 
 public class AtomClientITCase {
 
+	/**
+	 * This test uses the <code>lastFeed</code> property from the properties
+	 * file as a starting point.
+	 */
 	@Test
 	public void testAtomClientGetAllEntriesFromStart() throws Exception {
 		AtomClient ac = new AtomClient();
@@ -23,8 +27,14 @@ public class AtomClientITCase {
 		} else {
 			System.out.println("No entries found.");
 		}
+
+		assertTrue(!entries.isEmpty());
 	}
 
+	/**
+	 * This test uses a hard coded entryId as a starting point. It does not
+	 * use the <code>lastFeed</code> property from the properties file.
+	 */
 	@Test
 	public void testAtomClientGetAllEntriesFromGivenId() throws Exception {
 
