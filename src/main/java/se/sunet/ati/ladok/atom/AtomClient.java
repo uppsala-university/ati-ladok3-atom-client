@@ -42,6 +42,10 @@ import org.xml.sax.InputSource;
 
 public class AtomClient {
 
+	private static final String PROPERTY_CLIENT_CERTIFICATE_FILE = "clientCertificateFile";
+	private static final String PROPERTY_CLIENT_CERTIFICATE_PWD = "clientCertificatePwd";
+	private static final String PROPERTY_LAST_FEED = "lastFeed";
+	private static final String PROPERTY_USE_CERT = "useCert";
 	private static final String XPATH_HANDELSEUID_SELECTOR = "/*/events:HandelseUID";
 	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
 	private static int MAX_ENTRIES_PER_RUN = 100;
@@ -82,13 +86,13 @@ public class AtomClient {
 				throw new Exception("Unable to find atomclient.properties (see atomclient.properties.sample)");
 			}
 			properties.load(in);
-			lastFeed = properties.getProperty("lastFeed");
-			if (properties.getProperty("useCert") != null) {
-				useCert = properties.getProperty("useCert");
+			lastFeed = properties.getProperty(PROPERTY_LAST_FEED);
+			if (properties.getProperty(PROPERTY_USE_CERT) != null) {
+				useCert = properties.getProperty(PROPERTY_USE_CERT);
 			}
 			if ("true".equals(useCert)) {
-				clientCertificateFile = properties.getProperty("clientCertificateFile");
-				clientCertificatePwd = properties.getProperty("clientCertificatePwd");
+				clientCertificateFile = properties.getProperty(PROPERTY_CLIENT_CERTIFICATE_FILE);
+				clientCertificatePwd = properties.getProperty(PROPERTY_CLIENT_CERTIFICATE_PWD);
 			}
 		}
 		catch (IOException e) {
@@ -99,24 +103,24 @@ public class AtomClient {
 	
 	private void checkProperties() throws Exception {
 		if (lastFeed == null) {
-			throw new Exception("Missing property \"lastFeed\".");
+			throw new Exception("Missing property \"" + PROPERTY_LAST_FEED + "\".");
 		}
-		log.info("lastFeed: " + lastFeed);
-		log.info("useCert: " + useCert);
+		log.info(PROPERTY_LAST_FEED + ": " + lastFeed);
+		log.info(PROPERTY_USE_CERT + ": " + useCert);
 		if ("true".equals(useCert)) {
 			if (clientCertificateFile == null || clientCertificateFile.equals("")) {
-				throw new Exception("Missing property \"certificateFile\".");
+				throw new Exception("Missing property \"" + PROPERTY_CLIENT_CERTIFICATE_FILE + "\".");
 			}
 			if (!clientCertificateFile.substring(0, 1).equalsIgnoreCase("/")) {
 				clientCertificateFile = System.getProperty("user.home") + "/" + clientCertificateFile;
 				log.info("Using client certificate keystore path relative to home directory '" + System.getProperty("user.home")  + "'.");
 			}
 			if (!Files.exists(Paths.get(clientCertificateFile))) {
-				throw new Exception("Property \"clientCertificateFile\" (\"" + clientCertificateFile + "\") does not exist.");
+				throw new Exception("The \"" + PROPERTY_CLIENT_CERTIFICATE_FILE + "\" (\"" + clientCertificateFile + "\") does not exist.");
 			}
 			log.info("Using client certificate keystore: " + clientCertificateFile);
 			if (clientCertificatePwd == null || clientCertificatePwd.equals("")) {
-				throw new Exception("Missing property \"certificatePwd\".");
+				throw new Exception("Missing property \"" + PROPERTY_CLIENT_CERTIFICATE_PWD + "\".");
 			}
 		}
 	}
