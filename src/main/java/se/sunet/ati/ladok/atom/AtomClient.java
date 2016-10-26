@@ -167,9 +167,13 @@ public class AtomClient {
 				} else {
 
 					// Only accept success or client error (logical error).
-					if (resp.getType() != ResponseType.CLIENT_ERROR)
+					if (resp.getType() != ResponseType.CLIENT_ERROR) {
 						throw new UnexpectedClientResponseException(resp
 								.getType().toString());
+					}
+					else {
+						log.error("The client received an error response with status code " + resp.getStatus());
+					}
 
 				}
 			} catch (Exception e) {
@@ -189,9 +193,9 @@ public class AtomClient {
 	 */
 	private Feed findFirstFeed(Feed f) {
 
-		log.info("Finding first feed from: " + f.getId());		
+		log.info("Finding first feed from: " + f.getId());
 		
-		Feed first = f;		
+		Feed first = f;
 		Feed previous = getFeed(getPrevArchiveLink(f));
 
 		while (previous != null) {
@@ -233,7 +237,7 @@ public class AtomClient {
 		}
 
 		if (firstFeed != null && entries != null) {
-			firstEntry = entries.get(entries.size() - 1);			
+			firstEntry = entries.get(entries.size() - 1);
 			selfLink = getSelfLink(firstFeed);
 			entityId = selfLink + FEED_ENTRY_SEPARATOR + firstEntry.getId().toString();
 		}
@@ -270,7 +274,7 @@ public class AtomClient {
 			firstId = findFirstFeedIdAndFirstEntryId(feed);
 			if (firstId != null) {
 				log.info("Retrieving first id in archive structure: " + firstId);
-				parsed = firstId.split(FEED_ENTRY_SEPARATOR);				
+				parsed = firstId.split(FEED_ENTRY_SEPARATOR);
 			}
 		}
 		
