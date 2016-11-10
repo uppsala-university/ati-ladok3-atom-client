@@ -319,7 +319,7 @@ public class AtomClient {
 		for (Entry entry : unfilteredEntries) {
 			indexOfLastReadEntry++;
 			
-			if (getEntryId(entry.getContent()).equals(lastReadEntryId)) {
+			if (entry.getId().toString().equals(lastReadEntryId)) {
 				break;
 			}
 
