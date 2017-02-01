@@ -55,7 +55,7 @@ public class AtomClient {
 	private String useCert = "false";
 	private String clientCertificateFile = null;
 	private String clientCertificatePwd = null;
-	
+
 	private Log log = LogFactory.getLog(this.getClass());
 	private static String propertyFile = "atomclient.properties";
 
@@ -74,7 +74,7 @@ public class AtomClient {
 		checkProperties();
 		propertiesInitialized = true;
 	}
-	
+
 	private void loadProperties() throws Exception {
 		if (lastFeed != null) {
 			return; // Properties already loaded via setters
@@ -100,7 +100,7 @@ public class AtomClient {
 			throw e;
 		}
 	}
-	
+
 	private void checkProperties() throws Exception {
 		if (lastFeed == null) {
 			throw new Exception("Missing property \"" + PROPERTY_LAST_FEED + "\".");
@@ -111,6 +111,7 @@ public class AtomClient {
 			if (clientCertificateFile == null || clientCertificateFile.equals("")) {
 				throw new Exception("Missing property \"" + PROPERTY_CLIENT_CERTIFICATE_FILE + "\".");
 			}
+			// @todo This is not a valid check if the path is absolute or relative, at least not on Windows
 			if (!clientCertificateFile.substring(0, 1).equalsIgnoreCase("/")) {
 				clientCertificateFile = System.getProperty("user.home") + "/" + clientCertificateFile;
 				log.info("Using client certificate keystore path relative to home directory '" + System.getProperty("user.home")  + "'.");
@@ -127,7 +128,7 @@ public class AtomClient {
 
 	/**
 	 * Hämtar en Abdera-klient för att hämta feeds.
-	 * 
+	 *
 	 * @return En klient som kan returnera feeds.
 	 * @throws Exception Om någonting i certifikatshanteringen fungerar.
  	 */
@@ -151,16 +152,16 @@ public class AtomClient {
 
 	/**
 	 * Hämtar ett feed-objekt från en given URL.
-	 * 
+	 *
 	 * @param url URL för den feed som efterfrågas.
 	 * @return Efterfrågad feed.
 	 */
 	private Feed getFeed(String url) {
 
 		log.info("Fetching feed: " + url);
-		
+
 		Feed f = null;
-		
+
 		if (url != null) {
 			try {
 				ClientResponse resp = getClient().get(url);
@@ -184,21 +185,21 @@ public class AtomClient {
 				log.error(e + " :: " + url);
 			}
 		}
-		
+
 		return f;
-	
+
 	}
-	
+
 	/**
 	 * Hämtar det första arkivet med händelser i hela systemet.
-	 * 
+	 *
 	 * @param f Det arkiv som man man utgår från.
 	 * @return Det första arkivet i kedjan av händelsearkivet.
 	 */
 	private Feed findFirstFeed(Feed f) {
 
 		log.info("Finding first feed from: " + f.getId());
-		
+
 		Feed first = f;
 		Feed previous = getFeed(getPrevArchiveLink(f));
 
@@ -206,26 +207,26 @@ public class AtomClient {
 			first = previous;
 			previous = getFeed(getPrevArchiveLink(previous));
 		}
-		
+
 		return first;
-		
+
 	}
-	
+
 	/**
 	 * Hittar den första händelsen i hela arkivet och returnerar det
 	 * som en sammanslagning tillsammans med identiferare för det arkiv
 	 * som händelsen är dokumenterad i.
-	 * 
+	 *
 	 * @param f Det arkiv som är utgångspunkten.
-	 * @return Idenfifeiraren för den första händelsen i en sammanslagning 
+	 * @return Idenfifeiraren för den första händelsen i en sammanslagning
 	 * med identifieraren för hemvistarkivet. Null om ingen hittades.
 	 */
 	private String findFirstFeedIdAndFirstEntryId(Feed f) {
-		
+
 		String baseUri = (f != null) ? f.getBaseUri().toString() : null;
-		
+
 		log.info("Finding first feed and entry from: " + baseUri);
-		
+
 		Entry firstEntry = null;
 		String selfLink = null;
 		String entityId = null;
@@ -245,17 +246,17 @@ public class AtomClient {
 			selfLink = getSelfLink(firstFeed);
 			entityId = selfLink + FEED_ENTRY_SEPARATOR + firstEntry.getId().toString();
 		}
-		
+
 		return entityId;
 	}
-	
+
 	/**
-	 * Hämta händelser efter den senast lästa men hämtar aldrig fler än 
+	 * Hämta händelser efter den senast lästa men hämtar aldrig fler än
 	 * MAX_ENTRIES_PER_RUN händelser per anrop.
-	 * 
-	 * Om ingen utgångspunkt för frågan är definierad försöker man utgå från 
+	 *
+	 * Om ingen utgångspunkt för frågan är definierad försöker man utgå från
 	 * det senaste akrivet defineirat i klientens egenskapsfil.
-	 * 
+	 *
 	 * @param feedIdAndLastEntryId Identifierare för den senast lästa händelsen inklusive referens till identifieraren för händelsens hemvistakriv.
 	 * @return En lista av händelser.
 	 * @throws Exception Om det inte finns någon riktig utgångspunkt för frågan.
@@ -281,21 +282,21 @@ public class AtomClient {
 				parsed = firstId.split(FEED_ENTRY_SEPARATOR);
 			}
 		}
-		
+
 		if (parsed == null)
 			throw new Exception("No proper starting point for the feed found.");
-		
+
 		String feedId = parsed[0];
 		String entryId = parsed[1];
-		
+
 		return getEntries(feedId, (firstId == null ? entryId : null));
 	}
 
 
 	/**
-	 * Vänder på alla händelseobjekt i ett arkiv så att de kommer i 
+	 * Vänder på alla händelseobjekt i ett arkiv så att de kommer i
 	 * fallande kronologisk ordning.
-	 * 
+	 *
 	 * @param f Arkiv som innehåller de händelser som man vill vända på.
 	 * @return En lista av händelser i kronologisk fallande ordning.
 	 */
@@ -304,10 +305,10 @@ public class AtomClient {
 		Collections.reverse(entries);
 		return entries;
 	}
-	
+
 	/**
 	 * Filtrerar bort de händelser som redan har lästs.
-	 * 
+	 *
 	 * @param unfilteredEntries Lista av händelser som innehåller både lästa och oläsa händelser.
 	 * @param lastReadEntryId Det senast lästa entryt.
 	 * @return En lista av olästa händelser.
@@ -318,24 +319,24 @@ public class AtomClient {
 		int indexOfLastReadEntry = 0;
 		for (Entry entry : unfilteredEntries) {
 			indexOfLastReadEntry++;
-			
+
 			if (entry.getId().toString().equals(lastReadEntryId)) {
 				break;
 			}
 
 		}
-		
+
 		// We need to handle the first event to, passed as null.
 		if (lastReadEntryId == null)
 			indexOfLastReadEntry = 0;
-		
+
 		List<Entry> result = unfilteredEntries.subList(indexOfLastReadEntry, unfilteredEntries.size());
 		return result;
 	}
-	
+
 	/**
 	 * Extract an Ladok event identifier from a event XML source.
-	 * 
+	 *
 	 * @param xml The event.
 	 * @return And identifier or empty string if not found.
 	 */
@@ -360,12 +361,12 @@ public class AtomClient {
             }
 
         };
-		
+
 		XPath xPath = XPathFactory.newInstance().newXPath();
 		xPath.setNamespaceContext(nsContext);
 
 		String entryId = "";
-		
+
 		try {
 			NodeList nList = (NodeList) xPath.evaluate(XPATH_HANDELSEUID_SELECTOR, new InputSource(new StringReader(xml)), XPathConstants.NODESET);
 			if (nList.getLength() == 1 && nList.item(0) != null) {
@@ -375,20 +376,20 @@ public class AtomClient {
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
 		}
-		
+
 		return entryId;
 	}
 
 	/**
-	 * Hämtar olästa entries från senast lästa entry tillsammans med entryts käll-feed. 
+	 * Hämtar olästa entries från senast lästa entry tillsammans med entryts käll-feed.
 	 * Antalet entries som returneras baseras på MAX_ENTRIES_PER_RUN.
-	 * 
+	 *
 	 * @param feedId Identifierarer för feed som senast lästa entry finns i.
 	 * @param lastReadEntryId Identifierare för senast lästa entry.
 	 * @return En lista av olästa entries.
 	 */
 	private List<Entry> getEntries(String feedId, String lastReadEntryId) {
-		
+
 		log.info("Attempting to get max " + MAX_ENTRIES_PER_RUN + " events from latest feed " + feedId + " and up.");
 		Feed f = getFeed(feedId);
 		List<Entry> entries = new ArrayList<Entry>();
@@ -405,7 +406,7 @@ public class AtomClient {
 		}
 		return entries;
 	}
-	
+
 	public String getClientCertificateFile() {
 		return clientCertificateFile;
 	}
