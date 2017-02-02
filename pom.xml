@@ -14,7 +14,9 @@
   <version>1.0.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
-  <name>ATI Ladok 3 Atom Reader</name>
+  <name>ATI Ladok 3 Atom Client</name>
+  <description>A Ladok 3 Atom feed client as an OSGi-bundle.</description>
+  <url>https://github.com/uppsala-university/ati-ladok3-atom-client</url>
 
   <scm>
     <connection>scm:git:https://github.com/uppsala-university/ati-ladok3-atom-client.git</connection>
