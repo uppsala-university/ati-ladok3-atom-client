@@ -1,7 +1,6 @@
-# Namnet på certifikatfilerna kan antingen innehålla absoluta sökvägar
-# som "/path/to/certificate.jks" eller en relativ sökväg i förhållande
-# till system propertyn 'user.home'. Inledande / avgör hur klienten ska
-# hantera filen.
+# Namnet på certifikatfilen kan vara en absolut eller relativ sökväg till en fil
+# i filsystemet eller en resurs som finns tillgänglig på classpath.
+# Sökvägen kan innehålla system properties, t.ex. ${user.home}.
 
 lastFeed=https://api.mit.ladok.se/uppfoljning/feed/recent
 useCert=true

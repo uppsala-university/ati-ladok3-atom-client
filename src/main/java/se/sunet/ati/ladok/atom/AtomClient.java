@@ -35,6 +35,7 @@ import org.apache.abdera.protocol.Response.ResponseType;
 import org.apache.abdera.protocol.client.AbderaClient;
 import org.apache.abdera.protocol.client.ClientResponse;
 import org.apache.abdera.protocol.client.util.ClientAuthSSLProtocolSocketFactory;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.NodeList;
@@ -91,7 +92,7 @@ public class AtomClient {
 				useCert = properties.getProperty(PROPERTY_USE_CERT);
 			}
 			if ("true".equals(useCert)) {
-				clientCertificateFile = properties.getProperty(PROPERTY_CLIENT_CERTIFICATE_FILE);
+				clientCertificateFile = StrSubstitutor.replaceSystemProperties(properties.getProperty(PROPERTY_CLIENT_CERTIFICATE_FILE));
 				clientCertificatePwd = properties.getProperty(PROPERTY_CLIENT_CERTIFICATE_PWD);
 			}
 		}
@@ -111,19 +112,33 @@ public class AtomClient {
 			if (clientCertificateFile == null || clientCertificateFile.equals("")) {
 				throw new Exception("Missing property \"" + PROPERTY_CLIENT_CERTIFICATE_FILE + "\".");
 			}
-			// @todo This is not a valid check if the path is absolute or relative, at least not on Windows
-			if (!clientCertificateFile.substring(0, 1).equalsIgnoreCase("/")) {
-				clientCertificateFile = System.getProperty("user.home") + "/" + clientCertificateFile;
-				log.info("Using client certificate keystore path relative to home directory '" + System.getProperty("user.home")  + "'.");
-			}
-			if (!Files.exists(Paths.get(clientCertificateFile))) {
-				throw new Exception("The \"" + PROPERTY_CLIENT_CERTIFICATE_FILE + "\" (\"" + clientCertificateFile + "\") does not exist.");
-			}
-			log.info("Using client certificate keystore: " + clientCertificateFile);
 			if (clientCertificatePwd == null || clientCertificatePwd.equals("")) {
 				throw new Exception("Missing property \"" + PROPERTY_CLIENT_CERTIFICATE_PWD + "\".");
 			}
 		}
+	}
+
+	private InputStream createKeystoreInputStream() throws Exception {
+		InputStream keystoreInputStream = null;
+		if (Files.exists(Paths.get(clientCertificateFile))) {
+			// Try to find the keystore as a file
+			keystoreInputStream = new FileInputStream(clientCertificateFile);
+			log.info("Found the client certificate file '" + clientCertificateFile + "' as a file");
+		}
+		else {
+			// Try to find the keystore as a classpath resource
+			keystoreInputStream = this.getClass().getClassLoader().getResourceAsStream(clientCertificateFile);
+			if (keystoreInputStream == null) {
+				String message = "Unable to find the client certificate file '" + clientCertificateFile + "' as a classpath resource";
+				log.debug(message);
+				throw new Exception(message);
+			}
+			log.info("Found the client certificate file '" + clientCertificateFile + "' as a classpath resource");
+		}
+		if (keystoreInputStream == null) {
+			throw new Exception("Unable to find the client certificate file '" + clientCertificateFile + "'");
+		}
+		return keystoreInputStream;
 	}
 
 	/**
@@ -136,16 +151,22 @@ public class AtomClient {
 		log.info("Using certificate: " + useCert);
 		Abdera abdera = new Abdera();
 		AbderaClient client = new AbderaClient(abdera);
+		InputStream keystoreInputStream = null;
 		try {
 			if ("true".equals(useCert)) {
 				KeyStore clientKeystore = KeyStore.getInstance("PKCS12");
-				clientKeystore.load(new FileInputStream(clientCertificateFile), clientCertificatePwd.toCharArray());
+				keystoreInputStream = createKeystoreInputStream();
+				clientKeystore.load(keystoreInputStream, clientCertificatePwd.toCharArray());
 				ClientAuthSSLProtocolSocketFactory factory = new ClientAuthSSLProtocolSocketFactory(clientKeystore, clientCertificatePwd, "TLS",KeyManagerFactory.getDefaultAlgorithm(),null);
 				AbderaClient.registerFactory(factory, 443);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception(e.getMessage());
+		} finally {
+			if (keystoreInputStream != null) {
+				keystoreInputStream.close();
+			}
 		}
 		return client;
 	}
@@ -255,9 +276,9 @@ public class AtomClient {
 	 * MAX_ENTRIES_PER_RUN händelser per anrop.
 	 *
 	 * Om ingen utgångspunkt för frågan är definierad försöker man utgå från
-	 * det senaste akrivet defineirat i klientens egenskapsfil.
+	 * det senaste arkivet definierat i klientens egenskapsfil.
 	 *
-	 * @param feedIdAndLastEntryId Identifierare för den senast lästa händelsen inklusive referens till identifieraren för händelsens hemvistakriv.
+	 * @param feedIdAndLastEntryId Identifierare för den senast lästa händelsen inklusive referens till identifieraren för händelsens hemvistarkiv.
 	 * @return En lista av händelser.
 	 * @throws Exception Om det inte finns någon riktig utgångspunkt för frågan.
 	 */
