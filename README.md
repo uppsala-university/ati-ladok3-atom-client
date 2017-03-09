@@ -86,3 +86,28 @@ Redigera sedan filen `src/main/resources/atomclient.properties` så att den inne
 När du har gjort konfigurationen enligt ovan kan du köra integrationstesterna med nedanstående kommando:
 
     mvn clean verify -Prun-its
+
+## Att göra en release
+
+För att göra en release behöver du lägga till nedanstående inställningar i din ```settings.xml```.
+
+```
+    <!-- OSSRH -->
+    <server>
+      <id>ossrh</id>
+      <username>ATI:s användarnamn hos OSSRH</username>
+      <password>Tillhörande lösenord</password>
+    </server>
+    ...
+    <profile>
+      <id>ati-release</id>
+      <properties>
+        <gpg.passphrase>Din GPG passphrase</gpg.passphrase>
+      </properties>
+    </profile>
+```
+
+För att göra releasen använder du dig av Maven Release Plugin:
+
+    mvn clean release:prepare
+    mvn release:perform
