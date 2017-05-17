@@ -22,7 +22,7 @@ public class AtomUtilTest {
 		 Document<Feed> doc = parser.parse(in);
 		 String selfLink = AtomUtil.getSelfLink(doc.getRoot());
 		 
-		 assertEquals("http://localhost/ladok/feeds/1", selfLink);
+		 assertEquals("http://localhost:9001/files/ladok/feeds/1", selfLink);
 	}
 	
 	@Test
@@ -36,7 +36,7 @@ public class AtomUtilTest {
 		for (Entry entry : entries) {
 			String feedIdAndEventId = AtomUtil.getFeedIdAndEventId(entry);
 			
-			assertEquals("http://localhost/ladok/feeds/1;02cb593f-8f06-4263-b5dd-5665a85f618b", feedIdAndEventId);
+			assertEquals("http://localhost:9001/files/ladok/feeds/1;02cb593f-8f06-4263-b5dd-5665a85f618b", feedIdAndEventId);
 			break;
 		}
 	}

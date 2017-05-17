@@ -67,6 +67,27 @@ public class AtomClient {
 		// init();
 	}
 
+	/**
+	 * Finds the last entry added to the feed defined by "lastFeed"
+	 * @return the last entry in the lastFeed, if such exists, otherwise null
+	 */
+	public Entry findLastEntry() {
+		Feed feed = getFeed(lastFeed);
+		if (feed == null) {
+			return null;
+		}
+
+		return findLastEntry(feed);
+	}
+
+	private Entry findLastEntry(Feed feed) {
+		List<Entry> entries = feed.getEntries();
+		if (entries != null && entries.size() > 0) {
+			return entries.get(0);
+		}
+		return null;
+	}
+
 	private void init() throws Exception {
 		if (propertiesInitialized) {
 			return; // Already initialized

@@ -2,11 +2,11 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<title type="text">Title</title>
 	<link rel="self" type="application/atom+xml"
-		href="http://localhost/ladok/feeds/recent" />
+		href="http://localhost:9001/files/ladok/feeds/recent" />
 	<link rel="via" type="application/atom+xml"
-		href="http://localhost/ladok/feeds/2" />
+		href="http://localhost:9001/files/ladok/feeds/2" />
 	<link rel="prev-archive" type="application/atom+xml"
-		href="http://localhost/ladok/feeds/1" />
+		href="http://localhost:9001/files/ladok/feeds/1" />
 	<id>urn:id:2</id>
 	<generator uri="http://ladok.se/uppfoljning">Uppfoljning</generator>
 	<updated>2014-11-24T12:15:50Z</updated>
