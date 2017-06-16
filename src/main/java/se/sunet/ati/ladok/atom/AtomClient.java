@@ -1,10 +1,5 @@
 package se.sunet.ati.ladok.atom;
 
-import static se.sunet.ati.ladok.atom.AtomUtil.FEED_ENTRY_SEPARATOR;
-import static se.sunet.ati.ladok.atom.AtomUtil.getNextArchiveLink;
-import static se.sunet.ati.ladok.atom.AtomUtil.getPrevArchiveLink;
-import static se.sunet.ati.ladok.atom.AtomUtil.getSelfLink;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,19 +9,19 @@ import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.net.ssl.KeyManagerFactory;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
 import org.apache.abdera.model.Entry;
@@ -42,6 +37,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import static se.sunet.ati.ladok.atom.AtomUtil.FEED_ENTRY_SEPARATOR;
+import static se.sunet.ati.ladok.atom.AtomUtil.getNextArchiveLink;
+import static se.sunet.ati.ladok.atom.AtomUtil.getPrevArchiveLink;
+import static se.sunet.ati.ladok.atom.AtomUtil.getSelfLink;
 
 public class AtomClient {
 
@@ -63,7 +63,10 @@ public class AtomClient {
 	private Log log = LogFactory.getLog(this.getClass());
 	private static String propertyFile = "atomclient.properties";
 
-	public AtomClient() throws Exception {
+        private Map<String, Feed> cachedFeeds = new HashMap<>();
+
+
+  public AtomClient() throws Exception {
 		// We don't initialize here, but instead initialize lazily to enable
 		// loading properties either from properties file when used stand alone
 		// or via dependency injection when used in an OSGi environment.
@@ -214,6 +217,12 @@ public class AtomClient {
 
 		log.info("Fetching feed: " + url);
 
+		Feed cachedFeed = getCachedFeed(url);
+
+		if(cachedFeed != null) {
+			return cachedFeed;
+		}
+
 		Feed f = null;
 
 		if (url != null) {
@@ -253,7 +262,6 @@ public class AtomClient {
 	private Feed findFirstFeed(Feed f) {
 
 		log.info("Finding first feed from: " + f.getId());
-
 		Feed first = f;
 		Feed previous = getFeed(getPrevArchiveLink(f));
 
@@ -449,10 +457,12 @@ public class AtomClient {
 		List<Entry> entries = new ArrayList<Entry>();
 		if (f != null) {
 			entries.addAll(filterOlderEntries(getSortedEntriesFromFeed(f), lastReadEntryId));
-			while (f != null && getNextArchiveLink(f) != null && entries.size() < MAX_ENTRIES_PER_RUN) {
-				f = getFeed(getNextArchiveLink(f));
+			String nextArchiveLink = getNextArchiveLink(f);
+			while (f != null && nextArchiveLink != null && entries.size() < MAX_ENTRIES_PER_RUN) {
+				f = getFeed(nextArchiveLink);
 				if (f != null) {
 					entries.addAll(getSortedEntriesFromFeed(f));
+					cacheFeed(nextArchiveLink, f);
 				}
 			}
 			log.info("Started from " +  lastReadEntryId + " in feed " + feedId + " and found " + entries.size()
@@ -491,6 +501,15 @@ public class AtomClient {
 
 	public void setUseCert(String useCert) {
 		this.useCert = useCert;
+	}
+
+	private Feed getCachedFeed(String url) {
+		return cachedFeeds.get(url);
+	}
+
+	private void cacheFeed(String url, Feed feed) {
+		cachedFeeds.clear();
+		cachedFeeds.put(url, feed);
 	}
 
 }
