@@ -35,6 +35,8 @@ import org.apache.abdera.protocol.Response.ResponseType;
 import org.apache.abdera.protocol.client.AbderaClient;
 import org.apache.abdera.protocol.client.ClientResponse;
 import org.apache.abdera.protocol.client.util.ClientAuthSSLProtocolSocketFactory;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.SimpleHttpConnectionManager;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,6 +53,7 @@ public class AtomClient {
 	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
 	private static int MAX_ENTRIES_PER_RUN = 100;
 
+	private AbderaClient client = null;
 	private boolean propertiesInitialized = false;
 	private String lastFeed = null;
 	private String useCert = "false";
@@ -169,25 +172,34 @@ public class AtomClient {
 	 * @throws Exception Om någonting i certifikatshanteringen fungerar.
  	 */
 	private AbderaClient getClient() throws Exception {
-		log.info("Using certificate: " + useCert);
-		Abdera abdera = new Abdera();
-		AbderaClient client = new AbderaClient(abdera);
-		InputStream keystoreInputStream = null;
-		try {
-			if ("true".equals(useCert)) {
-				KeyStore clientKeystore = KeyStore.getInstance("PKCS12");
-				keystoreInputStream = createKeystoreInputStream();
-				clientKeystore.load(keystoreInputStream, clientCertificatePwd.toCharArray());
-				ClientAuthSSLProtocolSocketFactory factory = new ClientAuthSSLProtocolSocketFactory(clientKeystore, clientCertificatePwd, "TLS",KeyManagerFactory.getDefaultAlgorithm(),null);
-				AbderaClient.registerFactory(factory, 443);
+		if(client == null) {
+			log.info("Using certificate: " + useCert);
+			Abdera abdera = new Abdera();
+			// Använd en HttpClient som har tråd för att hantera connections
+			HttpClient httpClient = new HttpClient(new SimpleHttpConnectionManager());
+			client = new AbderaClient(abdera, httpClient);
+			// Bevara cookies mellan anrop
+			client.getHttpClientParams().setParameter("http.protocol.single-cookie-header", true);
+			InputStream keystoreInputStream = null;
+			try {
+				if ("true".equals(useCert)) {
+					KeyStore clientKeystore = KeyStore.getInstance("PKCS12");
+					keystoreInputStream = createKeystoreInputStream();
+					clientKeystore.load(keystoreInputStream, clientCertificatePwd.toCharArray());
+					ClientAuthSSLProtocolSocketFactory factory = new ClientAuthSSLProtocolSocketFactory(clientKeystore, clientCertificatePwd, "TLS", KeyManagerFactory.getDefaultAlgorithm(), null);
+					AbderaClient.registerFactory(factory, 443);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new Exception(e.getMessage());
+			} finally {
+				if (keystoreInputStream != null) {
+					keystoreInputStream.close();
+				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new Exception(e.getMessage());
-		} finally {
-			if (keystoreInputStream != null) {
-				keystoreInputStream.close();
-			}
+		}
+		else {
+			log.debug("Returning a previously instantiated instance of AbderaClient.");
 		}
 		return client;
 	}
@@ -426,7 +438,7 @@ public class AtomClient {
 	 * Hämtar olästa entries från senast lästa entry tillsammans med entryts käll-feed.
 	 * Antalet entries som returneras baseras på MAX_ENTRIES_PER_RUN.
 	 *
-	 * @param feedId Identifierarer för feed som senast lästa entry finns i.
+	 * @param feedId Identifierare för feed som senast lästa entry finns i.
 	 * @param lastReadEntryId Identifierare för senast lästa entry.
 	 * @return En lista av olästa entries.
 	 */
