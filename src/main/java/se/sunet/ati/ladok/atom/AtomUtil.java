@@ -14,22 +14,22 @@ public class AtomUtil {
 	public static final String LINK_NAME_NEXT_ARCHIVE = "next-archive";
 	public static final String LINK_NAME_SELF = "self";
 	public static final String LINK_NAME_VIA = "via";
-	
+
 	public static final String FEED_ENTRY_SEPARATOR = ";";
 
 	/**
 	 * Hämtar URL till nästa arkiv i ordningen.
-	 * 
+	 *
 	 * @param f Det arkiv man vill basera frågan på.
 	 * @return URL till nästa arkiv.
 	 */
 	public static String getNextArchiveLink(Feed f) {
 		return getLinkHref(f, LINK_NAME_NEXT_ARCHIVE);
 	}
-	
+
 	/**
 	 * Hämtar URL till föregående arkiv i ordningen.
-	 * 
+	 *
 	 * @param f Det arkiv man vill basera frågan på.
 	 * @return URL till föregående arkiv.
 	 */
@@ -39,17 +39,17 @@ public class AtomUtil {
 
 	/**
 	 * Hämtar URL till via-länken.
-	 * 
+	 *
 	 * @param f Det arkiv man vill basera frågan på.
 	 * @return URL till föregående arkiv.
 	 */
 	private static String getViaLink(Feed f) {
 		return getLinkHref(f, LINK_NAME_VIA);
-	}	
-	
+	}
+
 	/**
 	 * Hämtar URL till det egna arkivet.
-	 * 
+	 *
 	 * @param f Det arkiv man vill basera frågan på.
 	 * @return URL till föregående arkiv.
 	 */
@@ -57,7 +57,7 @@ public class AtomUtil {
 		String via = getViaLink(f);
 		return via != null ? via : getLinkHref(f, LINK_NAME_SELF);
 	}
-	
+
 	public static String getSelfLink(Entry e) {
 		Feed f = (Feed) e.getDocument().getRoot();
 		return getSelfLink(f);
@@ -67,17 +67,17 @@ public class AtomUtil {
 		return getSelfLink(e) + FEED_ENTRY_SEPARATOR + e.getId().toString();
 	}
 
-	
+
 	/**
 	 * Hjälpmetod för at hämta ut länkars värde ur en feed.
-	 * 
+	 *
 	 * @param f Den feed man vill extrahera länkar från.
 	 * @param linkname Namnet på länken.
 	 * @return URL för efterfrågad länk.
 	 */
 	private static String getLinkHref(Feed f, String linkname) {
 		String linkHref = null;
-		
+
 		for (Link link : f.getLinks()) {
 			if (linkname.equalsIgnoreCase(link.getRel())) {
 				linkHref = link.getAttributeValue("href");
@@ -85,11 +85,11 @@ public class AtomUtil {
 				break;
 			}
 		}
-		
-		log.info("Returning link '" + linkname + "':" + linkHref);
-		
-		return linkHref;		
+
+		log.debug("Returning link '" + linkname + "':" + linkHref);
+
+		return linkHref;
 	}
-	
+
 
 }
