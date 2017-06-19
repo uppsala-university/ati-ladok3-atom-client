@@ -202,7 +202,7 @@ public class AtomClient {
 			}
 		}
 		else {
-			log.debug("Returning a previously instantiated instance of AbderaClient.");
+			log.debug("Returning a previously instantiated instance of AbderaClient");
 		}
 		return client;
 	}
@@ -215,7 +215,7 @@ public class AtomClient {
 	 */
 	private Feed getFeed(String url) {
 
-		log.info("Fetching feed: " + url);
+		log.debug("Fetching feed: " + url);
 
 		Feed cachedFeed = getCachedFeed(url);
 
@@ -261,7 +261,7 @@ public class AtomClient {
 	 */
 	private Feed findFirstFeed(Feed f) {
 
-		log.info("Finding first feed from: " + f.getId());
+		log.debug("Finding first feed from: " + f.getId());
 		Feed first = f;
 		Feed previous = getFeed(getPrevArchiveLink(f));
 
@@ -287,7 +287,7 @@ public class AtomClient {
 
 		String baseUri = (f != null) ? f.getBaseUri().toString() : null;
 
-		log.info("Finding first feed and entry from: " + baseUri);
+		log.debug("Finding first feed and entry from: " + baseUri);
 
 		Entry firstEntry = null;
 		String selfLink = null;
@@ -324,7 +324,7 @@ public class AtomClient {
 	 * @throws Exception Om det inte finns någon riktig utgångspunkt för frågan.
 	 */
 	public List<Entry> getEntries(String feedIdAndLastEntryId) throws Exception {
-		log.info("Attempting to get all events starting from  " + feedIdAndLastEntryId);
+		log.debug("Attempting to get all events starting from  " + feedIdAndLastEntryId);
 		init();
 		String[] parsed = null;
 		String firstId = null;
@@ -340,7 +340,7 @@ public class AtomClient {
 			}
 			firstId = findFirstFeedIdAndFirstEntryId(feed);
 			if (firstId != null) {
-				log.info("Retrieving first id in archive structure: " + firstId);
+				log.debug("Retrieving first id in archive structure: " + firstId);
 				parsed = firstId.split(FEED_ENTRY_SEPARATOR);
 			}
 		}
@@ -452,7 +452,7 @@ public class AtomClient {
 	 */
 	private List<Entry> getEntries(String feedId, String lastReadEntryId) {
 
-		log.info("Attempting to get max " + MAX_ENTRIES_PER_RUN + " events from latest feed " + feedId + " and up.");
+		log.debug("Attempting to get max " + MAX_ENTRIES_PER_RUN + " events from latest feed " + feedId + " and up");
 		Feed f = getFeed(feedId);
 		List<Entry> entries = new ArrayList<Entry>();
 		if (f != null) {
@@ -465,7 +465,7 @@ public class AtomClient {
 					cacheFeed(nextArchiveLink, f);
 				}
 			}
-			log.info("Started from " +  lastReadEntryId + " in feed " + feedId + " and found " + entries.size()
+			log.info("Started from " +  lastReadEntryId + " in feed " + feedId + " and read " + entries.size()
 					+ " entries");
 		}
 		return entries;

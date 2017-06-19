@@ -11,15 +11,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class FileBasedEventPersistance implements EventPersistance {
-	
+
 	private Log log = LogFactory.getLog(this.getClass());
-	
+
 	private static String PROPERTY_STORE_FILENAME = "ladok.log";
 	private static String PROPERTY_LAST_READ_FEEDID_AND_ENTRYID = "last";
-	
+
 	static {
 		File f = new File("ladok.log");
-		
+
 		if (!f.exists()) {
 			try {
 				f.createNewFile();
@@ -28,30 +28,30 @@ public class FileBasedEventPersistance implements EventPersistance {
 			}
 		}
 	}
-	
+
 	@Override
 	public synchronized Entry saveEntry(Entry e) throws Exception{
-		
+
 		String feedIdAndEventId = AtomUtil.getFeedIdAndEventId(e);
-		
-		log.info("saveEntry feedIdAndEventId=" + feedIdAndEventId);
-		
+
+		log.debug("Attempting to save feedIdAndEntryId " + feedIdAndEventId);
+
 		Properties prop = new Properties();
 		prop.setProperty(PROPERTY_LAST_READ_FEEDID_AND_ENTRYID, feedIdAndEventId);
-		
+
 		try {
 			prop.store(new FileOutputStream(PROPERTY_STORE_FILENAME), null);
-			log.info("Saving message: " + e.getId().toString());
-			
+			log.debug("Saved feedIdAndEntryId " + feedIdAndEventId);
+
 			return e;
-			
+
 		} catch (Exception e1) {
-			
+
 			log.error(e1);
-			
+
 			return null;
 		}
-		
+
 	}
 
 	@Override
@@ -59,12 +59,12 @@ public class FileBasedEventPersistance implements EventPersistance {
 		// TODO
 		return false;
 	}
-	
+
 	@Override
 	public String getLastReadEntryId() {
-		
+
 		Properties prop = new Properties();
-		
+
 		try {
 			prop.load(new FileInputStream(PROPERTY_STORE_FILENAME));
 			if (prop.containsKey(PROPERTY_LAST_READ_FEEDID_AND_ENTRYID)) {
@@ -73,9 +73,9 @@ public class FileBasedEventPersistance implements EventPersistance {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return null;
-		
+
 	}
 
 }
