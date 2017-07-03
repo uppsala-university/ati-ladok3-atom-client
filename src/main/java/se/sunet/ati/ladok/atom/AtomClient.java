@@ -458,6 +458,7 @@ public class AtomClient {
 		if (f != null) {
 			entries.addAll(filterOlderEntries(getSortedEntriesFromFeed(f), lastReadEntryId));
 			String nextArchiveLink = getNextArchiveLink(f);
+
 			while (f != null && nextArchiveLink != null && entries.size() < MAX_ENTRIES_PER_RUN) {
 				f = getFeed(nextArchiveLink);
 				if (f != null) {
@@ -465,6 +466,11 @@ public class AtomClient {
 					cacheFeed(nextArchiveLink, f);
 				}
 			}
+
+			if(nextArchiveLink == null) {
+				clearFeedCache();
+			}
+
 			log.info("Started from " +  lastReadEntryId + " in feed " + feedId + " and read " + entries.size()
 					+ " entries");
 		}
@@ -510,6 +516,10 @@ public class AtomClient {
 	private void cacheFeed(String url, Feed feed) {
 		cachedFeeds.clear();
 		cachedFeeds.put(url, feed);
+	}
+
+	private void clearFeedCache() {
+		cachedFeeds.clear();
 	}
 
 }
