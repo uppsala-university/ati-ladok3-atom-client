@@ -26,27 +26,28 @@ public class AtomClientITCase {
 		Entry lastEntry = null;
 
 		String feedIdAndLastEntryId = null;
-		while (entries == null || (entries.size() > 0 && lastEntry != null && !AtomUtil.getSelfLink(lastEntry).endsWith("/" + Long.toString(feedsToRead)))) {
-			System.out.println("Ska hämta entries...");
+
+		System.out.println("Ska hämta entries...");
+		do {
 			entries = atomClient.getEntries(feedIdAndLastEntryId);
 
-			if(entries != null) {
-				System.out.println("Hämtade " + entries.size() + " entries.");
-				for(Entry e : entries) {
-					System.out.println("entryid: " + e.getId()
-									+ ", baseuri: "
-									+ e.getBaseUri());
-				}
+			System.out.println("Hämtade " + entries.size() + " entries.");
+			for(Entry e : entries) {
+				System.out.println("entryid: " + e.getId()
+								+ ", baseuri: "
+								+ e.getBaseUri());
+			}
+			if(entries.size() > 0) {
+				// Addera till totalen
 				entryCount += entries.size();
 				// Hämta ut och kom ihåg feedId och entryId
 				lastEntry = entries.get(entries.size() - 1);
 				feedIdAndLastEntryId = AtomUtil.getFeedIdAndEventId(lastEntry);
 			}
-			else {
-				System.out.println("Inga entries hittades.");
-			}
 		}
-		assertTrue(!entries.isEmpty());
+		while(entries.size() > 0 && !AtomUtil.getSelfLink(lastEntry).endsWith("/" + Long.toString(feedsToRead)));
+
+		assertTrue(entryCount > 0);
 		long end  = new Date().getTime();
 		System.out.println("Read " + entryCount + " entries in " + (end - start) + " milliseconds.");
 	}
