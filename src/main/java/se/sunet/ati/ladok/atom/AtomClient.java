@@ -324,7 +324,7 @@ public class AtomClient {
 	 * @throws Exception Om det inte finns någon riktig utgångspunkt för frågan.
 	 */
 	public List<Entry> getEntries(String feedIdAndLastEntryId) throws Exception {
-		log.debug("Attempting to get all events starting from  " + feedIdAndLastEntryId);
+		log.debug("Attempting to get all events after " + feedIdAndLastEntryId);
 		init();
 		String[] parsed = null;
 		String firstId = null;
@@ -459,7 +459,7 @@ public class AtomClient {
 			entries.addAll(filterOlderEntries(getSortedEntriesFromFeed(f), lastReadEntryId));
 			String nextArchiveLink = getNextArchiveLink(f);
 
-			while (f != null && nextArchiveLink != null && entries.size() < MAX_ENTRIES_PER_RUN) {
+			if (nextArchiveLink != null && entries.size() < MAX_ENTRIES_PER_RUN) {
 				f = getFeed(nextArchiveLink);
 				if (f != null) {
 					entries.addAll(getSortedEntriesFromFeed(f));
@@ -471,7 +471,7 @@ public class AtomClient {
 				clearFeedCache();
 			}
 
-			log.info("Started from " +  lastReadEntryId + " in feed " + feedId + " and read " + entries.size()
+			log.info("Started after " +  lastReadEntryId + " in feed " + feedId + " and read " + entries.size()
 					+ " entries");
 		}
 		return entries;
