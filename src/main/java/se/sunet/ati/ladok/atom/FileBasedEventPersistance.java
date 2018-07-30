@@ -39,16 +39,12 @@ public class FileBasedEventPersistance implements EventPersistance {
 		Properties prop = new Properties();
 		prop.setProperty(PROPERTY_LAST_READ_FEEDID_AND_ENTRYID, feedIdAndEventId);
 
-		try {
-			prop.store(new FileOutputStream(PROPERTY_STORE_FILENAME), null);
+		try (FileOutputStream out = new FileOutputStream(PROPERTY_STORE_FILENAME)){
+			prop.store(out, null);
 			log.debug("Saved feedIdAndEntryId " + feedIdAndEventId);
-
 			return e;
-
 		} catch (Exception e1) {
-
 			log.error(e1);
-
 			return null;
 		}
 
