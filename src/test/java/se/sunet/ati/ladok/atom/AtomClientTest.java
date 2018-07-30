@@ -72,8 +72,8 @@ public class AtomClientTest {
 		assertNotNull(lastEntry);
 		assertEquals("d2dd4252-fd84-4977-819a-8dae653b24e5", lastEntry.getId().toASCIIString());
 
-		String feedIdAndEventId = AtomUtil.getFeedIdAndEventId(lastEntry);
-		assertEquals("http://localhost:9001/files/ladok/feeds/2;d2dd4252-fd84-4977-819a-8dae653b24e5", feedIdAndEventId);
+		String feedIdAndEntryId = AtomUtil.getFeedIdAndEntryId(lastEntry);
+		assertEquals("http://localhost:9001/files/ladok/feeds/2;d2dd4252-fd84-4977-819a-8dae653b24e5", feedIdAndEntryId);
 	}
 
 	private class GetHandler implements HttpHandler {

@@ -324,7 +324,7 @@ public class AtomClient {
 	 * @throws Exception Om det inte finns någon riktig utgångspunkt för frågan.
 	 */
 	public List<Entry> getEntries(String feedIdAndLastEntryId) throws Exception {
-		log.debug("Attempting to get all events after " + feedIdAndLastEntryId);
+		log.debug("Attempting to get all entries after " + feedIdAndLastEntryId);
 		init();
 		String[] parsed = null;
 		String firstId = null;

@@ -32,16 +32,16 @@ public class FileBasedEventPersistance implements EventPersistance {
 	@Override
 	public synchronized Entry saveEntry(Entry e) throws Exception{
 
-		String feedIdAndEventId = AtomUtil.getFeedIdAndEventId(e);
+		String feedIdAndEntryId = AtomUtil.getFeedIdAndEntryId(e);
 
-		log.debug("Attempting to save feedIdAndEntryId " + feedIdAndEventId);
+		log.debug("Attempting to save feedIdAndEntryId " + feedIdAndEntryId);
 
 		Properties prop = new Properties();
-		prop.setProperty(PROPERTY_LAST_READ_FEEDID_AND_ENTRYID, feedIdAndEventId);
+		prop.setProperty(PROPERTY_LAST_READ_FEEDID_AND_ENTRYID, feedIdAndEntryId);
 
 		try (FileOutputStream out = new FileOutputStream(PROPERTY_STORE_FILENAME)){
 			prop.store(out, null);
-			log.debug("Saved feedIdAndEntryId " + feedIdAndEventId);
+			log.debug("Saved feedIdAndEntryId " + feedIdAndEntryId);
 			return e;
 		} catch (Exception e1) {
 			log.error(e1);

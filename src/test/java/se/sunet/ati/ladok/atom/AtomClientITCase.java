@@ -42,7 +42,7 @@ public class AtomClientITCase {
 				entryCount += entries.size();
 				// Hämta ut och kom ihåg feedId och entryId
 				lastEntry = entries.get(entries.size() - 1);
-				feedIdAndLastEntryId = AtomUtil.getFeedIdAndEventId(lastEntry);
+				feedIdAndLastEntryId = AtomUtil.getFeedIdAndEntryId(lastEntry);
 			}
 		}
 		while(entries.size() > 0 && !AtomUtil.getSelfLink(lastEntry).endsWith("/" + Long.toString(feedsToRead)));

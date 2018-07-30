@@ -63,8 +63,19 @@ public class AtomUtil {
 		return getSelfLink(f);
 	}
 
-	public static String getFeedIdAndEventId(Entry e) {
+	/**
+	 * @since 1.1.0
+	 */
+	public static String getFeedIdAndEntryId(Entry e) {
 		return getSelfLink(e) + FEED_ENTRY_SEPARATOR + e.getId().toString();
+	}
+
+	/**
+	 * @deprecated Använd {@link #getFeedIdAndEntryId(Entry)} istället
+	 */
+	@Deprecated
+	public static String getFeedIdAndEventId(Entry e) {
+		return getFeedIdAndEntryId(e);
 	}
 
 
