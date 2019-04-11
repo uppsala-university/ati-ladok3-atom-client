@@ -32,6 +32,7 @@ import org.apache.abdera.protocol.client.ClientResponse;
 import org.apache.abdera.protocol.client.util.ClientAuthSSLProtocolSocketFactory;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.SimpleHttpConnectionManager;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,6 +60,9 @@ public class AtomClient {
 	private String useCert = "false";
 	private String clientCertificateFile = null;
 	private String clientCertificatePwd = null;
+
+	private int httpClientSoTimeout = 0;
+	private int httpClientConnectionTimeout = 0;
 
 	private Log log = LogFactory.getLog(this.getClass());
 	private static String propertyFile = "atomclient.properties";
@@ -179,7 +183,11 @@ public class AtomClient {
 			log.info("Using certificate: " + useCert);
 			Abdera abdera = new Abdera();
 			// Använd en HttpClient som har tråd för att hantera connections
-			HttpClient httpClient = new HttpClient(new SimpleHttpConnectionManager());
+			SimpleHttpConnectionManager simpleHttpConnectionManager = new SimpleHttpConnectionManager();
+			HttpConnectionManagerParams params = simpleHttpConnectionManager.getParams();
+			params.setConnectionTimeout(httpClientSoTimeout);
+			params.setSoTimeout(httpClientConnectionTimeout);
+			HttpClient httpClient = new HttpClient(simpleHttpConnectionManager);
 			client = new AbderaClient(abdera, httpClient);
 			// Bevara cookies mellan anrop
 			client.getHttpClientParams().setParameter("http.protocol.single-cookie-header", true);
@@ -511,6 +519,22 @@ public class AtomClient {
 
 	private Feed getCachedFeed(String url) {
 		return cachedFeeds.get(url);
+	}
+
+	public int getHttpClientSoTimeout() {
+		return httpClientSoTimeout;
+	}
+
+	public void setHttpClientSoTimeout(int httpClientSoTimeout) {
+		this.httpClientSoTimeout = httpClientSoTimeout;
+	}
+
+	public int getHttpClientConnectionTimeout() {
+		return httpClientConnectionTimeout;
+	}
+
+	public void setHttpClientConnectionTimeout(int httpClientConnectionTimeout) {
+		this.httpClientConnectionTimeout = httpClientConnectionTimeout;
 	}
 
 	private void cacheFeed(String url, Feed feed) {
