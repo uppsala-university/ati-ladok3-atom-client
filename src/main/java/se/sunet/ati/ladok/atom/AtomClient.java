@@ -61,7 +61,7 @@ public class AtomClient {
 	private String clientCertificateFile = null;
 	private String clientCertificatePwd = null;
 
-	private int httpClientSoTimeout = 0;
+	private int httpClientSocketTimeout = 0;
 	private int httpClientConnectionTimeout = 0;
 
 	private Log log = LogFactory.getLog(this.getClass());
@@ -186,7 +186,7 @@ public class AtomClient {
 			SimpleHttpConnectionManager simpleHttpConnectionManager = new SimpleHttpConnectionManager();
 			HttpConnectionManagerParams params = simpleHttpConnectionManager.getParams();
 			params.setConnectionTimeout(httpClientConnectionTimeout);
-			params.setSoTimeout(httpClientSoTimeout);
+			params.setSoTimeout(httpClientSocketTimeout);
 			HttpClient httpClient = new HttpClient(simpleHttpConnectionManager);
 			client = new AbderaClient(abdera, httpClient);
 			// Bevara cookies mellan anrop
@@ -521,12 +521,12 @@ public class AtomClient {
 		return cachedFeeds.get(url);
 	}
 
-	public int getHttpClientSoTimeout() {
-		return httpClientSoTimeout;
+	public int getHttpClientSocketTimeout() {
+		return httpClientSocketTimeout;
 	}
 
-	public void setHttpClientSoTimeout(int httpClientSoTimeout) {
-		this.httpClientSoTimeout = httpClientSoTimeout;
+	public void setHttpClientSocketTimeout(int httpClientSocketTimeout) {
+		this.httpClientSocketTimeout = httpClientSocketTimeout;
 	}
 
 	public int getHttpClientConnectionTimeout() {
