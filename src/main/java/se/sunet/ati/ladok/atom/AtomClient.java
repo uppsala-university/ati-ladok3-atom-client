@@ -185,8 +185,8 @@ public class AtomClient {
 			// Använd en HttpClient som har tråd för att hantera connections
 			SimpleHttpConnectionManager simpleHttpConnectionManager = new SimpleHttpConnectionManager();
 			HttpConnectionManagerParams params = simpleHttpConnectionManager.getParams();
-			params.setConnectionTimeout(httpClientSoTimeout);
-			params.setSoTimeout(httpClientConnectionTimeout);
+			params.setConnectionTimeout(httpClientConnectionTimeout);
+			params.setSoTimeout(httpClientSoTimeout);
 			HttpClient httpClient = new HttpClient(simpleHttpConnectionManager);
 			client = new AbderaClient(abdera, httpClient);
 			// Bevara cookies mellan anrop
