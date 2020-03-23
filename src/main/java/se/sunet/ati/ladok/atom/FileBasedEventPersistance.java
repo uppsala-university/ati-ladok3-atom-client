@@ -44,8 +44,10 @@ public class FileBasedEventPersistance implements EventPersistance {
 			log.debug("Saved feedIdAndEntryId " + feedIdAndEntryId);
 			return e;
 		} catch (Exception e1) {
-			log.error(e1);
-			return null;
+			// We need to rethrow the exception here and let the
+			// caller handle it as it sees fit
+			log.warn(e1);
+			throw e1;
 		}
 
 	}

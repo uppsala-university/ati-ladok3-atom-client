@@ -1,6 +1,7 @@
 package se.sunet.ati.ladok.atom;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -44,11 +45,10 @@ public class FileBasedEventPersistanceTestCase {
                 }
         }
 
-        @Test
+        @Test(expected = FileNotFoundException.class)
         public void testSaveEntryReadOnly() throws Exception {
                 file.setReadOnly();
                 Entry returnedEntry = eventPersistance.saveEntry(entry);
-                assertNull(returnedEntry);
         }
 
         @Test
